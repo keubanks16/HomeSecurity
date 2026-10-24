@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Front Door</title>
+  <meta name="theme-color" content="#0e1116" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Front Door" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Lock screen -->
+  <section id="lock" class="screen lock" hidden>
+    <div class="lock-inner">
+      <div class="lamp"></div>
+      <h1>Front Door</h1>
+      <p class="muted">Enter your PIN</p>
+      <form id="pinForm">
+        <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" />
+        <button class="btn primary" type="submit">Unlock</button>
+        <p id="pinErr" class="err"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- App -->
+  <main id="app" hidden>
+    <header class="top">
+      <div>
+        <h1 id="devName">Front Door</h1>
+        <p class="status"><span id="dot" class="dot"></span><span id="statusText">Checking…</span></p>
+      </div>
+      <button id="refresh" class="icon-btn" aria-label="Refresh">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.75 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+      </button>
+    </header>
+
+    <!-- HOME -->
+    <section id="tab-home" class="tab">
+      <div class="live card">
+        <div class="video-wrap">
+          <video id="video" playsinline muted controls hidden></video>
+          <div id="livePlaceholder" class="live-ph">
+            <svg viewBox="0 0 24 24" width="44" height="44"><path fill="currentColor" d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+            <span>Tap to watch live</span>
+          </div>
+        </div>
+        <button id="liveBtn" class="btn primary wide">Watch live</button>
+        <p id="liveErr" class="err"></p>
+      </div>
+
+      <div id="installHint" class="card hint" hidden>
+        <strong>Add to your Home Screen</strong>
+        <p>On iPhone: tap <b>Share</b> → <b>Add to Home Screen</b>, then open it from there to turn on alerts.</p>
+      </div>
+
+      <div id="notifCard" class="card hint" hidden>
+        <strong>Get doorbell alerts</strong>
+        <p>Turn on notifications so you know when someone rings.</p>
+        <button id="enableNotif" class="btn primary wide">Turn on notifications</button>
+      </div>
+
+      <h2 class="section">Latest</h2>
+      <div id="latest"></div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section id="tab-activity" class="tab" hidden>
+      <div class="filters">
+        <button class="chip on" data-f="all">All</button>
+        <button class="chip" data-f="ring">Rings</button>
+        <button class="chip" data-f="motion">Motion</button>
+      </div>
+      <div id="eventList"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="tab-settings" class="tab" hidden>
+      <div class="card list">
+        <div class="row">
+          <div><b>This phone</b><p class="muted small" id="notifState">Notifications off</p></div>
+          <button id="notifToggle" class="btn">Turn on</button>
+        </div>
+        <label class="row"><div><b>Ring alerts</b><p class="muted small">When the button is pressed</p></div><input type="checkbox" id="setRing" class="switch" /></label>
+        <label class="row"><div><b>Motion alerts</b><p class="muted small">When someone walks up</p></div><input type="checkbox" id="setMotion" class="switch" /></label>
+        <div class="row">
+          <div><b>Motion cooldown</b><p class="muted small">Quiet time between motion alerts</p></div>
+          <select id="setCooldown">
+            <option value="0">None</option><option value="60">1 min</option><option value="120">2 min</option>
+            <option value="300">5 min</option><option value="900">15 min</option>
+          </select>
+        </div>
+      </div>
+      <div class="card list">
+        <button id="testPush" class="row link">Send a test notification</button>
+        <button id="checkNow" class="row link">Check doorbell now</button>
+        <button id="showCodes" class="row link">Show raw doorbell codes (setup)</button>
+        <button id="clearEvents" class="row link danger">Clear activity</button>
+        <button id="logout" class="row link danger">Lock app</button>
+      </div>
+      <pre id="debugOut" class="debug" hidden></pre>
+      <p class="muted small center" id="pollInfo"></p>
+    </section>
+
+    <nav class="tabs">
+      <button data-tab="home" class="on">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 12h3v8h6v-6h2v6h6v-8h3z"/></svg>Home
+      </button>
+      <button data-tab="activity">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1z"/></svg>Activity
+      </button>
+      <button data-tab="settings">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.14 12.94a7.07 7.07 0 0 0 0-1.88l2.03-1.58-1.92-3.32-2.39.96a7 7 0 0 0-1.62-.94L14.9 3.6h-3.8l-.36 2.58c-.58.24-1.12.55-1.62.94l-2.39-.96-1.92 3.32 2.03 1.58a7.07 7.07 0 0 0 0 1.88l-2.03 1.58 1.92 3.32 2.39-.96c.5.39 1.04.7 1.62.94l.36 2.58h3.8l.36-2.58c.58-.24 1.12-.55 1.62-.94l2.39.96 1.92-3.32zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>Settings
+      </button>
+    </nav>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
